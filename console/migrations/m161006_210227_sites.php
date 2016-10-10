@@ -10,7 +10,6 @@ use yii\db\Migration;
 		$this->createTable ('sites', array(
 			'id'         => Schema::TYPE_PK,
 			'domain'      => Schema::TYPE_STRING . ' NOT NULL',
-			'api_key'    => Schema::TYPE_TEXT,
 			'created_at' => Schema::TYPE_DATETIME,
 		));
 	}
@@ -21,6 +20,7 @@ use yii\db\Migration;
 		echo "m161006_183251_sites cannot be reverted.\n";
 
 		$this->dropTable('sites');
+
 		return false;
 	}
 

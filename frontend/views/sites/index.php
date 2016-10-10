@@ -25,7 +25,6 @@
 
 			'id',
 			'domain',
-			'api_key:ntext',
 			'created_at',
 
 			['class' => 'yii\grid\ActionColumn'],

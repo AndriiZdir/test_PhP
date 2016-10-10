@@ -63,15 +63,18 @@ class SitesController extends Controller
      */
     public function actionView($id)
     {
+		$dataProvider = new ActiveDataProvider([
+			'query' => Statistic::find(),
+		]);
 
 		$data_statistic = Statistic::find()
 			->where(['domain_id' => $id])
-			->asArray()
 			->all();
 
         return $this->render('view', [
             'model' => $this->findModel($id),
-			'statistic' => $data_statistic
+			'statistic' => $data_statistic,
+			'tableStatistic' => $dataProvider
         ]);
     }
 

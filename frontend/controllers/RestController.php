@@ -45,8 +45,7 @@
 
 		public function actionCreate ()
 		{
-//			die();
-//			echo 2;
+
 		}
 
 

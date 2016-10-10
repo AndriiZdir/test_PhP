@@ -30,7 +30,6 @@ class Sites extends ActiveRecord
     {
         return [
             [['domain'], 'required'],
-            [['api_key'], 'string'],
             [['created_at'], 'safe'],
             [['domain'], 'string', 'max' => 255],
         ];
@@ -42,7 +41,6 @@ class Sites extends ActiveRecord
 			if($insert == self::EVENT_BEFORE_INSERT)
 			{
 				$this->created_at = date("Y-m-d h:i:s");
-				$this->api_key = md5($this->domain);
 			}
 			return true;
 		}
@@ -58,7 +56,6 @@ class Sites extends ActiveRecord
         return [
             'id' => 'ID',
             'domain' => 'Domain',
-            'api_key' => 'Api Key',
             'created_at' => 'Created At',
         ];
     }

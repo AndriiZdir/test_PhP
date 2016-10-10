@@ -2,11 +2,12 @@
 
 	use yii\helpers\Html;
 	use yii\widgets\DetailView;
-
+	use yii\grid\GridView;
+	use yii\widgets\Pjax;
 	/* @var $this yii\web\View */
 	/* @var $model app\models\Sites */
 
-	$this->title = $model->id;
+	$this->title = $model->domain;
 	$this->params['breadcrumbs'][] = ['label' => 'Sites', 'url' => ['index']];
 	$this->params['breadcrumbs'][] = $this->title;
 ?>
@@ -30,38 +31,62 @@
 		'attributes' => [
 			'id',
 			'domain',
-			'api_key:ntext',
 			'created_at',
 		],
 	]) ?>
-<!--	<pre>-->
-<!--		--><?// print_r($_SERVER)?>
-<!--	</pre>-->
 	<div class="text-center" style="font-size: 2em; padding: 20px">Код  API для вставки на сайт</div>
 
-	<pre style="height: 350px">
+	<pre>
 &lt;?php
-	$context = stream_context_create(array(
-		'http' => array(
-		'method' => 'POST',
-		'header' => 'Content-Type: application/x-www-form-urlencoded' . PHP_EOL,
-		'content' => array(
-			'domain_id' => <?=$model->id?>,
-			'ip'    => &lt;?=$_SERVER['REMOTE_ADDR']?>,
-			'browser'    => &lt;?=$_SERVER['HTTP_USER_AGENT']?>,
-			'get'    => &lt;?=$_SERVER['REQUEST_URI']?>,
-			'created_at' => &lt;?=$_SERVER['REQUEST_TIME']?>,
-		),
-		),
-    ));
-	file_get_contents($file = "http://frontend.dev/rest/create", $use_include_path = false, $context);
+	if( $curl = curl_init() ) {
+		curl_setopt($curl, CURLOPT_URL, 'http://service.kadcrm.ru/rest/create');
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER,true);
+		curl_setopt($curl, CURLOPT_POST, true);
+		curl_setopt($curl, CURLOPT_POSTFIELDS, "domain_id=<?=$model->id?>&ip=".$_SERVER['REMOTE_ADDR']."&browser=".$_SERVER['HTTP_USER_AGENT']."&get=".$_SERVER['REQUEST_URI']."&created_at=".$_SERVER['REQUEST_TIME']."'");
+		$out = curl_exec($curl);
+		curl_close($curl);
+	}
 ?>
 	</pre>
 
-	<!--<pre>-->
-	<!--    --><? //print_r($statistic)?>
-	<!--</pre>-->
+	<div class="text-center" style="font-size: 2em; padding: 20px">Статистика переходов на сайт</div>
 
+	<?php Pjax::begin (); ?>
+	<?= GridView::widget ([
+		'dataProvider' => $tableStatistic,
+		'columns'      => [
+			['class' => 'yii\grid\SerialColumn'],
+			'ip',
+			[
+				'attribute'=>'browser',
+				'label'=>'Браузер',
+			],
+			[
+				'attribute'=>'get',
+				'label'=>'Рефер',
+			],
+			[
+				'attribute'=>'created_at',
+				'label'=>'Дата перехода',
+				'format' =>  ['date', 'd-M-Y H:i'],
+			],
+
+//			['class' => 'yii\grid\ActionColumn'],
+		],
+	]); ?>
+	<?php Pjax::end (); ?>
+<!--	<pre>-->
+<!--	    --><?// print_r($statistic)?>
+<!--	</pre>-->
+	<pre>
+	<?php
+		foreach ($statistic as $item){
+			$browser[] = $item['browser'];
+		}
+		$browser = array_unique($browser);
+		print_r($browser);
+	?>
+	</pre>
 	<?
 		use miloschuman\highcharts\Highstock;
 		use yii\web\JsExpression;
